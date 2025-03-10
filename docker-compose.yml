@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: game_saver_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0135"
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: game_saver
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      CONFIG_PATH: /config/local.yaml
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./config/local.yaml:/config/local.yaml
+
+volumes:
+  postgres_data:

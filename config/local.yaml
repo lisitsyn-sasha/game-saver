@@ -1,0 +1,13 @@
+env: "local"
+storage_path: "postgres://postgres:0135@game_saver_postgres:5432/postgres?sslmode=disable"
+http_server:
+  address: "0.0.0.0:8082"
+  timeout: 4s
+  idle_timeout: 60s
+
+## env - переменная, которая указывает на текущее окружение
+## storage_path - строка подключения к бд
+## http_server - блок настроек HTTP-сервера
+  ## address - адрес, на котором будет запущен HTTP-сервер
+  ## timeout - максимальное время, в течение которого сервер будет обрабатывать HTTP-запрос
+  ## idle_timeout - максимальное время, в течение которого HTTP-соединение может оставаться неактивным
