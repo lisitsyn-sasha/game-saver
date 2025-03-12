@@ -3,6 +3,7 @@ package main
 import (
 	"game-saver/config"
 	"game-saver/internal/logger"
+	"game-saver/internal/server/handlers/delete"
 	"game-saver/internal/server/handlers/save"
 	"game-saver/internal/storage/postgres"
 	"github.com/go-chi/chi/v5"
@@ -38,8 +39,9 @@ func main() {
 	router.Use(middleware.Recoverer) // Отлавливаем паники
 	router.Use(middleware.URLFormat) // Парсим и обрабатываем формат URL
 
-	// Регистрируем маршрут и создаем обработчик
+	// Регистрируем маршруты и создаем обработчики
 	router.Post("/game", save.NewSaveHandler(log, storage))
+	router.Delete("/game", delete.NewDeleteHandler(log, storage))
 
 	// Логируем запуск сервера
 	log.Info("starting server", slog.String("address", cfg.Address))

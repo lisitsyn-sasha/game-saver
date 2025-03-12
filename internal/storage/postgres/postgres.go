@@ -91,3 +91,22 @@ func (s *Storage) SaveGame(ctx context.Context, gameTitleToSave string) (int64, 
 	// возвращаем id сохраненной игры
 	return id, nil
 }
+
+// SQL-запрос с удалением игры
+const deleteGameQuery = `DELETE FROM game WHERE title = $1 RETURNING id`
+
+// DeleteGame удаляет игру из БД; функция написана аналогично SaveGame
+func (s *Storage) DeleteGame(ctx context.Context, gameTitleToDelete string) (int64, error) {
+	if gameTitleToDelete == "" {
+		return 0, fmt.Errorf("game title cannot be empty")
+	}
+
+	var id int64
+
+	err := s.db.QueryRow(ctx, deleteGameQuery, gameTitleToDelete).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to delete game: %w", err)
+	}
+
+	return id, nil
+}
