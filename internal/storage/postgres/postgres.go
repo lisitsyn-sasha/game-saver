@@ -39,7 +39,8 @@ var (
 	createTableURLQuery = `
         CREATE TABLE IF NOT EXISTS game(
             id SERIAL PRIMARY KEY,
-            title TEXT NOT NULL UNIQUE
+            title TEXT NOT NULL UNIQUE,
+            score INTEGER
         );
     `
 	createIdURLQuery = `CREATE INDEX IF NOT EXISTS idx_game_title ON game(title);`
@@ -67,23 +68,27 @@ func createTables(db *pgxpool.Pool) error {
 // SQL-запрос для сохранения игры
 // Если игра с таким названием существует, обновляется запись и возвращается id
 var saveGameQuery = `
-	INSERT INTO game(title) VALUES($1)
-	ON CONFLICT (title) DO UPDATE SET title = EXCLUDED.title
+	INSERT INTO game(title, score) VALUES($1, $2)
+	ON CONFLICT (title) DO UPDATE SET score = EXCLUDED.score
 	RETURNING id
 `
 
 // SaveGame сохраняет игру в БД и возвращает ее id
 // Если gameToSave пустое, то возвращает ошибку
-func (s *Storage) SaveGame(ctx context.Context, gameTitleToSave string) (int64, error) {
+func (s *Storage) SaveGame(ctx context.Context, gameTitleToSave string, gameScoreToSave int64) (int64, error) {
 	// Проверяем, что gameToSave не пустое
 	if gameTitleToSave == "" {
 		return 0, fmt.Errorf("game title cannot be empty")
+	}
+	// Проверяем, что оценка больше 0 и меньше 10
+	if gameScoreToSave < 0 || gameScoreToSave > 10 {
+		return 0, fmt.Errorf("score must be between 0 and 10")
 	}
 
 	var id int64
 
 	// Выполняет SQL-запрос; если произошла ошибка, то возвращаем ее с контекстом
-	err := s.db.QueryRow(ctx, saveGameQuery, gameTitleToSave).Scan(&id)
+	err := s.db.QueryRow(ctx, saveGameQuery, gameTitleToSave, gameScoreToSave).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("failed to save game: %w", err)
 	}

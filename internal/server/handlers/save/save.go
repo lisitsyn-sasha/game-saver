@@ -53,7 +53,7 @@ func NewSaveHandler(log *slog.Logger, gameSaver GameSaver) http.HandlerFunc {
 		// Сохраняем игру в хранилище
 		// Если игра уже существует, то логируется информация и возвращает JSON-ответ с ошибкой
 		// Если произошла другая ошибка, то она возвращается
-		id, err := gameSaver.SaveGame(r.Context(), req.Title)
+		id, err := gameSaver.SaveGame(r.Context(), req.Title, req.Score)
 		if errors.Is(err, storage.ErrURLExists) {
 			log.Info("game already exists", slog.String("game", req.Title))
 			render.JSON(w, r, response.Error("game title already exists"))
