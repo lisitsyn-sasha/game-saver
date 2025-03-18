@@ -115,3 +115,22 @@ func (s *Storage) DeleteGame(ctx context.Context, gameTitleToDelete string) (int
 
 	return id, nil
 }
+
+// SQL-запрос на получение оценки игры
+const getGameScoreQuery = `SELECT score FROM game WHERE title = $1`
+
+// GetGameScore запрашивает оценку игры из БД; функция написана аналогично SaveGame
+func (s *Storage) GetGameScore(ctx context.Context, gameTitle string) (int64, error) {
+	if gameTitle == "" {
+		return 0, fmt.Errorf("game title cannot be empty")
+	}
+
+	var score int64
+
+	err := s.db.QueryRow(ctx, getGameScoreQuery, gameTitle).Scan(&score)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get score: %w", err)
+	}
+
+	return score, nil
+}

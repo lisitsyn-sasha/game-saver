@@ -4,7 +4,6 @@ import (
 	"errors"
 	"game-saver/internal/logger"
 	"game-saver/internal/server/response"
-	"game-saver/internal/storage"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
@@ -12,6 +11,7 @@ import (
 	"net/http"
 )
 
+// Более подробные комментарии можно найти в NewSaveHandler
 func NewDeleteHandler(log *slog.Logger, gameDeleter GameDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log = log.With(
@@ -44,11 +44,6 @@ func NewDeleteHandler(log *slog.Logger, gameDeleter GameDeleter) http.HandlerFun
 		}
 
 		id, err := gameDeleter.DeleteGame(r.Context(), req.Title)
-		if errors.Is(err, storage.ErrURLExists) {
-			log.Info("game already exists", slog.String("game", req.Title))
-			render.JSON(w, r, response.Error("game title already exists"))
-			return
-		}
 		if err != nil {
 			log.Error("failed to delete game", logger.Err(err))
 			render.JSON(w, r, response.Error("failed to delete game"))
